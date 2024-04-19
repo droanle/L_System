@@ -1,0 +1,9 @@
+o server armazena a lista de rotas:
+resebe o controller; indentifica os metodos e suas rotas, metodos e nomes; valida o callback; da split no path; adiciona rota na arvore;  
+
+o server recebe a requisição; execulta o handler busca os dados na arvore e encontra o destino ou retorna um error 404; a rota execulta o callback e retorna o responce; o handler recebe o response e aproveita das usas propriedades para retornar da maneira correta
+
+alimentar arquivo .proprities
+
+criar rotas de loading. 
+

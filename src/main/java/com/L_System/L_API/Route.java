@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.L_System.L_API.HTTP.Method;
 import com.L_System.L_API.HTTP.Request;
 import com.L_System.L_API.HTTP.Response;
+import com.L_System.L_API.HTTP.StatusCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -74,7 +75,7 @@ public class Route {
     }
 
     public Boolean isEquals(String path, Method method) {
-        return this.path.equals(path) && this.method == method;
+        return this.path.equals(path) && (this.method == method || this.method == null);
     }
 
     private Boolean validRouteParam(String param) {
@@ -101,7 +102,6 @@ public class Route {
 
         for (Route route : this.children) {
             if (route.validRouteParam(currentPath)) {
-
                 if (path.size() == 1 && method != route.method)
                     continue;
 
@@ -155,7 +155,7 @@ public class Route {
             this.route = route;
         }
 
-        public String make(Request request) {
+        public Response make(Request request) {
             try {
                 java.lang.reflect.Method callback = route.callback;
 
@@ -171,6 +171,7 @@ public class Route {
 
                 while (routeParamsFieldNames.hasNext()) {
                     String fieldName = routeParamsFieldNames.next();
+
                     JsonNode paramValue = routeParams.get(fieldName);
                     String valueType = paramValue.get(0).asText();
                     String value = paramValue.get(1).asText();
@@ -178,15 +179,10 @@ public class Route {
                     for (int i = 0; i < types.size(); i++) {
                         Class<?> type = types.get(i);
 
-                        System.out.println("valueType: " + valueType);
-                        System.out.println("type: " + type.getName());
-                        System.out.println("int".equals(type.getName()));
-                        System.out.println("int".equals(valueType));
-
                         if ("int".equals(valueType) && "int".equals(type.getName())) {
                             parameters.add(Integer.parseInt(value));
                             types.remove(i);
-                        } else if ("str".equals(valueType) && "str".equals(type.getName())) {
+                        } else if ("str".equals(valueType) && "java.lang.String".equals(type.getName())) {
                             parameters.add(value);
                             types.remove(i);
                             break;
@@ -197,25 +193,24 @@ public class Route {
 
                 Object result = callback.invoke(instancia, parameters.toArray());
 
-                if (result instanceof Response) {
-                    result = (Response) result;
-                } else if (result instanceof Integer) {
-                    result = (Integer) result;
-                } else if (result instanceof String) {
-                    result = (String) result;
-                } else {
+                if (result instanceof Response)
+                    return (Response) result;
+                else if (result instanceof Integer)
+                    return new Response((Integer) result).Text().StatusCode(StatusCode.OK);
+                else if (result instanceof String)
+                    return new Response((String) result).Text().StatusCode(StatusCode.OK);
+                else {
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode jsonNode = mapper.valueToTree(result);
                     String json = mapper.writeValueAsString(jsonNode);
-                    result = json;
+
+                    return new Response((String) json).JSON().StatusCode(StatusCode.OK);
                 }
-
-                return "alo";
             } catch (Exception e) {
-                System.out.println(e);
-            }
 
-            return "not alo";
+                System.out.println(e);
+                return new Response().JSON().StatusCode(StatusCode.NOT_FOUND);
+            }
         }
 
     }

@@ -10,12 +10,20 @@ public class Response {
     public Response() {
     }
 
+    public Response(int content) {
+        this.content = String.valueOf(content);
+    }
+
     public Response(String content) {
         this.content = content;
     }
 
     public Response(JsonNode content) {
         this.content = content.toString();
+    }
+
+    public int length() {
+        return content.length();
     }
 
     public Response Content(String content) {

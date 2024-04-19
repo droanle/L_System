@@ -17,6 +17,8 @@ public class Main {
 
         App.addControllers(Teste.class);
 
+        App.serializeRouteList();
+
         App.start();
 
         // App.stopAfterDelay(30000); // 30 segundos

@@ -1,9 +1,11 @@
 package com.L_System.L_API;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -11,6 +13,8 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 import com.L_System.L_API.Route.RouteProvider;
 import com.L_System.L_API.HTTP.Request;
+import com.L_System.L_API.HTTP.Response;
+import com.L_System.L_API.HTTP.ResponseType;
 import com.sun.net.httpserver.HttpServer;
 
 public class Server {
@@ -66,6 +70,24 @@ public class Server {
         }
     }
 
+    public void serializeRouteList() {
+        try (FileWriter fileWriter = new FileWriter("serializeRouteList.json")) {
+            StringBuilder json = new StringBuilder("[");
+            for (int i = 0; i < routeList.size(); i++) {
+                json.append(routeList.get(i).serialize());
+                if (i != routeList.size() - 1) {
+                    json.append(",");
+                }
+            }
+            json.append("]");
+
+            fileWriter.write(json.toString());
+            System.out.println("JSON written to serializeRouteList.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void start() {
         server.start();
         System.out.println("Servidor iniciado");
@@ -98,13 +120,20 @@ public class Server {
                 if (correctRoute == null)
                     exchange.sendResponseHeaders(404, 0); // Not Found
                 else {
-                    System.out.println(request.path);
 
-                    String response = correctRoute.make(request);
+                    Response response = correctRoute.make(request);
 
-                    exchange.sendResponseHeaders(200, response.length());
+                    exchange.sendResponseHeaders(response.statusCode.code, response.length());
+
+                    if (response.type == ResponseType.JSON)
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    else if (response.type == ResponseType.Text)
+                        exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                    else
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+
                     OutputStream os = exchange.getResponseBody();
-                    os.write(response.getBytes());
+                    os.write(response.content.getBytes(StandardCharsets.UTF_8));
                     os.close();
                 }
             } catch (Exception e) {

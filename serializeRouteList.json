@@ -1,0 +1,43 @@
+[{
+  "path" : "teste",
+  "isRouteParam" : false,
+  "routeParamName" : "",
+  "routeParamType" : "",
+  "childrens" : [ {
+    "path" : "rota",
+    "isRouteParam" : false,
+    "routeParamName" : "",
+    "routeParamType" : "",
+    "childrens" : [ {
+      "path" : "int:id",
+      "isRouteParam" : true,
+      "routeParamName" : "id",
+      "routeParamType" : "int",
+      "method" : "GET",
+      "callback" : "com.L_System.L_API.HTTP.Methodrota",
+      "childrens" : [ ]
+    } ]
+  }, {
+    "path" : "tela",
+    "isRouteParam" : false,
+    "routeParamName" : "",
+    "routeParamType" : "",
+    "childrens" : [ {
+      "path" : "str:valor",
+      "isRouteParam" : true,
+      "routeParamName" : "valor",
+      "routeParamType" : "str",
+      "method" : "GET",
+      "callback" : "com.L_System.L_API.HTTP.Methodtela",
+      "childrens" : [ ]
+    } ]
+  }, {
+    "path" : "person",
+    "isRouteParam" : false,
+    "routeParamName" : "",
+    "routeParamType" : "",
+    "method" : "GET",
+    "callback" : "com.L_System.L_API.HTTP.Methodhome",
+    "childrens" : [ ]
+  } ]
+}]
